@@ -4,7 +4,7 @@ import { parseSession, SESSION_COOKIE } from "./lib/auth/parse";
 // Runs before every page: a per-request CSP nonce, then an optimistic session check.
 // The (app) and (admin) layouts read the session again before rendering.
 
-function csp(nonce: string) {
+export function csp(nonce: string) {
   const dev = process.env.NODE_ENV === "development";
   return [
     "default-src 'self'",

@@ -58,6 +58,15 @@ describe("broken or edited localStorage", () => {
   });
 });
 
+describe("hand-edited cookies", () => {
+  it("survive a broken %-escape instead of throwing", async () => {
+    vi.stubGlobal("document", { cookie: "izde_session=%E0%A4%A; lang=%E0" });
+    const chat = await chatApi.createChat({ type: "all" });
+    await drain(chatApi.sendMessage(chat.id, "можно ли пересдать экзамен", new AbortController().signal));
+    expect((await chatApi.getChat(chat.id)).messages).toHaveLength(2);
+  });
+});
+
 describe("feedback and answer language", () => {
   it("keeps a 'Не то' rating counted after the answer is retried", async () => {
     const chat = await chatApi.createChat({ type: "all" });

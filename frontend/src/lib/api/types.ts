@@ -104,7 +104,7 @@ export interface Analytics {
   queriesWeek: number;
   topQueries: { query: string; count: number }[];
   noResults: { query: string; count: number }[];
-  feedback: { up: number; down: number; comments: string[] }; // real: counted from chats
+  feedback: { up: number; down: number; comments: string[] }; // real: counted from the ratings log
 }
 
 export interface User {
