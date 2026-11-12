@@ -171,7 +171,7 @@ export const en: Dict = {
   "summary.queries.link": "Analytics",
   "summary.feedback": "Chat answer ratings",
   "summary.feedback.detail": "Helpful: {up}, not it: {down}",
-  "summary.feedback.note": "Counted from the chats in this browser.",
+  "summary.feedback.note": "Counted from the ratings given in this browser.",
 
   "docs.meta": "Ready for search: {ready} · queued: {queued}",
   "docs.table": "Documents in the base",

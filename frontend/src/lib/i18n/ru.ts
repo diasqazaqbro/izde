@@ -169,7 +169,7 @@ export const ru = {
   "summary.queries.link": "Аналитика",
   "summary.feedback": "Отметки ответов в чате",
   "summary.feedback.detail": "Полезно: {up}, не то: {down}",
-  "summary.feedback.note": "Считаются по чатам в этом браузере.",
+  "summary.feedback.note": "Считаются по отметкам, поставленным в этом браузере.",
 
   "docs.meta": "Готово к поиску: {ready} · в очереди: {queued}",
   "docs.table": "Документы в базе",

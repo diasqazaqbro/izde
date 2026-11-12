@@ -172,7 +172,7 @@ export const kk: Dict = {
   "summary.queries.link": "Аналитика",
   "summary.feedback": "Чаттағы жауап бағалары",
   "summary.feedback.detail": "Пайдалы: {up}, дұрыс емес: {down}",
-  "summary.feedback.note": "Осы браузердегі чаттар бойынша есептеледі.",
+  "summary.feedback.note": "Осы браузерде қойылған бағалар бойынша есептеледі.",
 
   "docs.meta": "Іздеуге дайын: {ready} · кезекте: {queued}",
   "docs.table": "Базадағы құжаттар",
