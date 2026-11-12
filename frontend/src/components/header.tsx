@@ -16,7 +16,7 @@ export async function Header({ user }: { user: User }) {
           </Link>
           <span className="rounded-full border border-line px-2.5 py-0.5 text-[13px] text-muted">{t("header.org")}</span>
           <div className="ml-auto flex items-center gap-1">
-            <Nav />
+            <Nav isAdmin={user.role === "admin"} />
             <LangSelect lang={await getLang()} />
             <ProfileMenu email={user.email} roleLabel={t(`role.${user.role}`)} />
           </div>

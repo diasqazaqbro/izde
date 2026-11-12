@@ -2,25 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Search, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Search, type LucideIcon } from "lucide-react";
 import type { Key } from "@/lib/i18n/ru";
 import { useT } from "@/lib/i18n/client";
 
-const ITEMS: { href: string; label: Key; icon: LucideIcon; match: string[] }[] = [
+const ITEMS: { href: string; label: Key; icon: LucideIcon; match: string[]; admin?: boolean }[] = [
   { href: "/", label: "nav.search", icon: Search, match: ["/", "/search", "/docs"] },
   { href: "/chat", label: "nav.chat", icon: MessageSquare, match: ["/chat"] },
+  { href: "/admin", label: "nav.admin", icon: LayoutDashboard, match: ["/admin", "/pricing"], admin: true },
 ];
 
 function isActive(path: string, match: string[]) {
   return match.some((m) => (m === "/" ? path === "/" : path === m || path.startsWith(`${m}/`)));
 }
 
-export function Nav() {
+export function Nav({ isAdmin }: { isAdmin: boolean }) {
   const t = useT();
   const path = usePathname();
   return (
     <nav aria-label={t("nav.label")} className="flex gap-1">
-      {ITEMS.map((item) => (
+      {ITEMS.filter((item) => isAdmin || !item.admin).map((item) => (
         <Link
           key={item.href}
           href={item.href}
