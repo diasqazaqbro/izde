@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Izde Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one centered column (max 760px) for search and reading, wider (1040px) for admin; sticky translucent top bar. Single light look by the user's choice. */
+:root {
+  color-scheme: light;
+  --bg: #f2f2f5;
+  --page: #fbfbfd;
+  --surface: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #5f6368;
+  --line: #d9d9de;
+  --accent: #0066cc;
+  --accent-soft: #e8f1fb;
+  --mark: #fff3bf;
+  --ok: #1a7f37;
+  --wait: #8a5a00;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  --r: 18px;
+}
+html, body { height: 100%; }
+body { background: var(--page); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--page); }
+button, input { font: inherit; color: inherit; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: -0.02em; line-height: 1.15; }
+
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.col { max-width: 760px; margin-inline: auto; }
+.col.wide { max-width: 1040px; }
+
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(251,251,253,.86); backdrop-filter: saturate(180%) blur(16px); -webkit-backdrop-filter: saturate(180%) blur(16px); border-bottom: 1px solid var(--line); }
+.bar-in { max-width: 1040px; margin-inline: auto; display: flex; align-items: center; gap: 8px 20px; flex-wrap: wrap; padding-block: 10px; }
+.brand { font-weight: 700; font-size: 20px; letter-spacing: -0.03em; background: none; border: 0; padding: 6px 2px; cursor: pointer; }
+.org { color: var(--muted); font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+.nav button { background: none; border: 0; padding: 8px 12px; min-height: 36px; border-radius: 999px; cursor: pointer; color: var(--muted); font-size: 15px; }
+.nav button[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: 0 0 0 1px var(--line); }
+.nav button:hover { color: var(--fg); }
+
+.btn { background: var(--accent); color: #ffffff; border: 0; border-radius: 999px; padding: 11px 22px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.btn:hover { filter: brightness(1.08); }
+.btn.ghost { background: var(--surface); color: var(--accent); box-shadow: inset 0 0 0 1px var(--line); }
+
+/* login */
+.login { min-height: 100%; display: grid; place-items: center; padding-block: 32px; }
+.login-card { width: 100%; max-width: 400px; background: var(--surface); border-radius: 22px; padding: 32px 28px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 18px; }
+.login-card h1 { font-size: 40px; }
+.login-card p { color: var(--muted); }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+.field input { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: 44px; font-size: 16px; color: var(--fg); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 12px; padding: 3px; gap: 3px; }
+.seg button { border: 0; background: none; border-radius: 9px; padding: 9px 8px; min-height: 40px; cursor: pointer; color: var(--muted); font-size: 15px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.hint { font-size: 13px; color: var(--muted); }
+
+/* search */
+main { padding-block: 40px 72px; }
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px; padding-top: clamp(16px, 9vh, 96px); }
+.wordmark { font-size: clamp(60px, 12vw, 96px); font-weight: 700; letter-spacing: -0.055em; line-height: 1; }
+.wordmark i { font-style: normal; color: var(--accent); }
+.hero > .lead { color: var(--muted); font-size: clamp(17px, 2.4vw, 21px); line-height: 1.35; max-width: 34ch; text-wrap: balance; }
+.sgroup { width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.results .sgroup { align-items: flex-start; }
+.sbox { box-sizing: border-box; width: 100%; min-width: 0; display: flex; align-items: center; gap: 4px; background: var(--surface); border-radius: 999px; padding: 6px 6px 6px 22px; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(0,0,0,.07); }
+.sbox svg { flex: none; }
+.sbox > svg { color: var(--muted); }
+.sbox input { flex: 1; min-width: 0; border: 0; background: none; padding: 10px; font-size: 17px; min-height: 44px; }
+.sbox input::-webkit-search-cancel-button { display: none; }
+.sbox input:focus { outline: none; }
+.sbox:focus-within { box-shadow: 0 0 0 2px var(--accent), 0 12px 32px rgba(0,102,204,.12); }
+.go { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent); color: #ffffff; cursor: pointer; display: grid; place-items: center; }
+.go:hover { filter: brightness(1.08); }
+.hero .sbox input { min-height: 56px; font-size: 19px; }
+.hero .go { width: 56px; height: 56px; }
+.modes { width: fit-content; max-width: 100%; }
+.modes button { padding: 6px 18px; min-height: 34px; font-size: 14px; }
+.try { width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: left; padding-top: 8px; }
+.try-h { font-size: 13px; color: var(--muted); padding-left: 4px; }
+.sug { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.chip { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left; background: var(--bg); border: 0; border-radius: 16px; padding: 14px 18px; min-height: 54px; cursor: pointer; font-size: 15px; }
+.chip::after { content: "→"; color: var(--muted); }
+.chip:hover { background: var(--accent-soft); color: var(--accent); }
+.chip:hover::after { color: var(--accent); }
+.stat { font-size: 13px; color: var(--muted); }
+
+.results { display: flex; flex-direction: column; gap: 20px; }
+.count { color: var(--muted); font-size: 14px; }
+.answer { background: var(--accent-soft); border-radius: var(--r); padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.answer p { font-size: 18px; line-height: 1.45; }
+.src { font-size: 14px; background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-align: left; }
+.src:hover { text-decoration: underline; }
+.list { background: var(--surface); border-radius: var(--r); box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
+.hit { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 18px 22px; cursor: pointer; }
+.hit:first-child { border-top: 0; }
+.hit:hover { background: #fafafc; }
+.hit h3 { font-size: 17px; font-weight: 600; color: var(--accent); letter-spacing: -0.01em; }
+.meta { font-size: 13px; color: var(--muted); }
+.quote { font-size: 15px; color: var(--fg); }
+mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3px; }
+.empty { background: var(--surface); border-radius: var(--r); box-shadow: 0 0 0 1px var(--line); padding: 28px 22px; display: flex; flex-direction: column; gap: 12px; }
+.empty h2 { font-size: 20px; }
+.empty p { color: var(--muted); }
+
+/* document */
+.back { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 8px 0; min-height: 36px; font-size: 15px; }
+.doc { display: flex; flex-direction: column; gap: 22px; }
+.doc h1 { font-size: clamp(26px, 4.5vw, 38px); }
+.card { background: var(--surface); border-radius: var(--r); box-shadow: 0 0 0 1px var(--line); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.card h2 { font-size: 18px; }
+.clause { border-left: 3px solid var(--line); padding: 4px 0 4px 14px; display: flex; flex-direction: column; gap: 4px; }
+.clause.on { border-left-color: var(--accent); }
+.clause.on .quote { background: var(--mark); border-radius: 4px; padding: 2px 4px; }
+.toc { columns: 2 260px; column-gap: 28px; font-size: 14px; color: var(--muted); padding: 0; list-style: none; }
+.toc li { padding: 3px 0; break-inside: avoid; }
+
+/* admin */
+.admin { display: flex; flex-direction: column; gap: 22px; }
+.admin-head { display: flex; gap: 12px 20px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.admin-head h1 { font-size: clamp(28px, 4.5vw, 38px); }
+.usage { display: flex; flex-direction: column; gap: 8px; }
+.meter { height: 8px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.drow { display: grid; grid-template-columns: minmax(0, 1fr) 90px 60px 120px; gap: 6px 16px; align-items: center; padding: 14px 22px; border-top: 1px solid var(--line); font-size: 15px; }
+.drow:first-child { border-top: 0; }
+.drow.head { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: #fafafc; }
+.drow .t { min-width: 0; overflow-wrap: anywhere; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 3px 10px; width: fit-content; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--ok); background: #e7f5ea; }
+.pill.wait { color: var(--wait); background: #fff4d6; }
+.note { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r); padding: 16px 20px; color: var(--muted); font-size: 14px; }
+.foot { color: var(--muted); font-size: 13px; padding-top: 28px; max-width: 70ch; }
+
+@media (max-width: 640px) {
+  main { padding-block: 24px 56px; }
+  .hero { padding-top: 0; }
+  .sug { grid-template-columns: 1fr; }
+  .drow { grid-template-columns: minmax(0, 1fr) auto; }
+  .drow.head { display: none; }
+  .drow .t { grid-column: 1 / -1; }
+  .drow .lang { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) { .btn, .chip, .hit { transition: filter .15s, background .15s, border-color .15s, color .15s; } }
+</style>
+
+<div id="app"></div>
+
+<script>
+// ---------- data: only real IITU documents found on iitu.edu.kz ----------
+var DOCS = {
+  ap: {
+    title: "Academic Policy", code: "QM-02", lang: "EN", org: "IITU JSC",
+    url: "https://iitu.edu.kz/documents/2984/Academic_Policy.pdf",
+    toc: ["1. Purpose and Scope","2. Normative References","3. Terms, Symbols and Abbreviations","4. General Provisions","5. Teachers and Academic Staff","6. Students","7. Disciplinary Policy","8. Non-Academic Activity","9. Organization of the Academic Process","10. Attendance Requirements","11. Information Systems and Means of Communication","12. Academic Load","13. Learning Outcomes Recognition Policy","14. Grade Distribution Curve (Bell Curve)","15. Assessment of Students’ Academic Achievements","16. Non-Formal Learning","17. Administrative Grades","18. Appeal","19. GPA","20. Transcript","21. Diploma Supplement","22. Registration for Disciplines","23. Registration of Students","24. Retake","25. Cancelled Classes","26. Academic Advising","27. Rules for Transfer of Students to a Vacant State Educational Grant","28. Rules for Transfer of Students from One Year to Another","29. Procedure for Providing Academic Leave","30. Rules for Transfer, Restoration and Expulsion of Students","31. Transfer to Another Higher Educational Institution","32. Transfer from Another Higher Educational Institution","33. Transfer from One Academic Program (Specialty) to Another","34. Transfer from One Language of Instruction to Another","35. Restoration in the Number of Students","36. Expulsion from the University","37. General Completion Requirements for a Bachelor’s Degree","38. Conclusion"]
+  },
+  mob: {
+    title: "Regulations on Organizing Academic Mobility", code: "P-40, ред. 5", lang: "EN", org: "IITU JSC",
+    url: "https://iitu.edu.kz/documents/3487/P-40_%D0%90%D0%BA%D0%B0%D0%B4_%D2%B1%D1%82%D2%9B%D1%8B%D1%80%D0%BB%D1%8B%D2%9B_%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D1%81%D1%96_%D1%80%D0%B5%D0%B4_5_2_ENG.pdf",
+    toc: ["1. General Provisions","2. Goals and Objectives","3. Statutory References","4. Basic Concepts","5. Providing the Organization of the Academic Mobility Program","6. Procedure for Implementation of Student’s Outgoing Academic Mobility","7. Student Activities After Graduation from the Outgoing Academic Mobility Program","8. Procedure for Implementing Incoming Academic Mobility of a Student","9. Organizing the Academic Mobility of Faculty and Staff","Appendices 1–4"]
+  },
+  phd: {
+    title: "Regulations on PhD Doctoral Students Research Scientific Training", code: "P-117, ред. 1", lang: "EN", org: "IITU JSC",
+    url: "https://iitu.edu.kz/documents/3508/Appendix_IV.1.10_P__117_-_Regulation_on_research_practice_of_PhD_students.pdf",
+    toc: ["1. General Provisions","2. Scope","3. Terms, Notations and Abbreviations","4. Responsibility","5. Basic Provisions","6. Goals and Objectives of Research Scientific Training","7. Competencies Formed as a Result of Scientific Training","8. Procedure for Completing Research Scientific Training","9. Research Scientific Training Program","10. Structure and Content of the Research Scientific Training Report","11. Requirements for Preparation of a Report on Research Scientific Training"]
+  }
+};
+// clause text is quoted from the documents; "tags" stand in for the meaning search, "answer" for the AI reply
+var CLAUSES = [
+  { id: "ap-15-3", doc: "ap", no: "п. 15.3", sec: "15. Assessment of Students’ Academic Achievements",
+    text: "Upon receipt of the “FX” “unsatisfactory” grade, it is allowed to retake the final exam.",
+    tags: ["пересда","экзамен","fx","неуд","retake","завал"],
+    answer: "Да. При оценке FX («неудовлетворительно») разрешается пересдать итоговый экзамен." },
+  { id: "ap-10-3", doc: "ap", no: "п. 10.3", sec: "10. Attendance Requirements",
+    text: "In case of missing more than 20% of discipline classes without good reason…",
+    tags: ["пропус","посещ","прогул","attendance","не ходить","20%"],
+    answer: "В академической политике задан порог: пропуск более 20% занятий по дисциплине без уважительной причины. Что за этим следует, написано в самом пункте 10.3." },
+  { id: "ap-29-7", doc: "ap", no: "п. 29.7", sec: "29. Procedure for Providing Academic Leave",
+    text: "The student is obliged to issue an exit from academic leave at the end of the period specified in the order.",
+    tags: ["академ","отпуск","leave","академка"],
+    answer: "Когда срок, указанный в приказе, заканчивается, студент обязан оформить выход из академического отпуска." },
+  { id: "ap-28-4", doc: "ap", no: "п. 28.4", sec: "28. Rules for Transfer of Students from One Year to Another",
+    text: "A student who has not gained the minimum number of GPA is required to retake the course.",
+    tags: ["gpa","следующий курс","перевод на","переводной","балл","летний семестр"],
+    answer: "Студент, который не набрал минимальный GPA, обязан повторно пройти курс (retake the course). Минимальный GPA устанавливает Academic Council (п. 28.2)." },
+  { id: "ap-23-2", doc: "ap", no: "п. 23.2", sec: "23. Registration of Students",
+    text: "Tuition fees are paid according to the price list for the cost of services for the current academic year.",
+    tags: ["оплат","стоимост","плат","tuition","деньг","цена","сколько стоит"],
+    answer: "Обучение оплачивается по прайс-листу стоимости услуг на текущий учебный год." },
+  { id: "mob-a4-6", doc: "mob", no: "прил. 4, п. 6", sec: "Appendix 4",
+    text: "Students are obliged to observe the rules of academic integrity.",
+    tags: ["мобильн","обмен","за границ","честност","mobility","integrity"],
+    answer: "В приложении 4 к положению об академической мобильности сказано, что студенты обязаны соблюдать правила академической честности." },
+  { id: "mob-a4-9", doc: "mob", no: "прил. 4, п. 9", sec: "Appendix 4",
+    text: "…violation of it may lead to disciplinary measures up to the restriction of participation in the educational process.",
+    tags: ["наруш","дисциплин","санкц","наказан","мобильн"],
+    answer: "Нарушение может привести к дисциплинарным мерам вплоть до ограничения участия в образовательном процессе (приложение 4, п. 9)." },
+  { id: "phd-8-2", doc: "phd", no: "п. 8.2", sec: "8. Procedure for Completing Research Scientific Training",
+    text: "The total volume of research scientific training is 10 credits in accordance with the SCSE.",
+    tags: ["докторант","phd","кредит","стажиров","практик","научн"],
+    answer: "Общий объём научной стажировки докторанта составляет 10 кредитов." },
+  { id: "phd-10-7", doc: "phd", no: "п. 10.7", sec: "10. Structure and Content of the Research Scientific Training Report",
+    text: "The training report is signed by the doctoral student, checked and endorsed by the training supervisor.",
+    tags: ["отчёт","отчет","report","докторант","подпис","руководител"],
+    answer: "Отчёт о стажировке подписывает докторант, а проверяет и визирует руководитель стажировки." }
+];
+// found on iitu.edu.kz but not read yet, so they are shown as queued
+var QUEUE = [
+  { title: "Путеводитель первокурсника", code: "—", lang: "RU", url: "https://iitu.edu.kz/documents/470/%D0%9F%D1%83%D1%82%D0%B5%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C_%D0%BF%D0%B5%D1%80%D0%B2%D0%BE%D0%BA%D1%83%D1%80%D1%81%D0%BD%D0%B8%D0%BA%D0%B0.pdf" },
+  { title: "Правила перевода и восстановления обучающихся", code: "R-23, ред. 2", lang: "RU", url: "https://iitu.edu.kz/documents/1027/R-23_%D0%9F%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0_%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%D0%B0_%D0%B8_%D0%B2%D0%BE%D1%81%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F_%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%86%D0%B8%D1%8F_2_LqsUgO4.pdf" },
+  { title: "Кодекс академической честности", code: "—", lang: "RU", url: "https://iitu.edu.kz/documents/150/%D0%9A%D0%BE%D0%B4%D0%B5%D0%BA%D1%81_%D0%B0%D0%BA%D0%B0%D0%B4%D0%B5%D0%BC%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B9_%D1%87%D0%B5%D1%81%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8_1.pdf" },
+  { title: "Regulation on scientific consultants for PhD students", code: "P-52", lang: "EN", url: "https://iitu.edu.kz/documents/3505/Appendix_IV.1.7_-P_-_52_Regulation_on_scientific_consultants_for_PhD_students.pdf" }
+];
+var EXAMPLES = ["можно ли пересдать экзамен", "сколько можно пропускать пары", "выход из академического отпуска", "сколько кредитов стажировка докторанта"];
+var PLAN_LIMIT = 100;
+
+// ---------- state ----------
+var S = { view: "login", role: "student", q: "", mode: "meaning", doc: null, clause: null };
+var app = document.getElementById("app");
+
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function words(q) { return q.toLowerCase().split(/[^a-zа-яёәғқңөұүһі0-9%]+/i).filter(function (w) { return w.length >= 3; }); }
+
+function search(q, mode) {
+  var ql = q.toLowerCase(), ws = words(q), out = [];
+  CLAUSES.forEach(function (c) {
+    var hay = (c.text + " " + c.sec + " " + DOCS[c.doc].title).toLowerCase(), score = 0, hits = [];
+    ws.forEach(function (w) { if (hay.indexOf(w) > -1) { score += 2; hits.push(w); } });
+    if (mode === "meaning") c.tags.forEach(function (t) { if (ql.indexOf(t) > -1) score += 3; });
+    if (score > 0) out.push({ c: c, score: score, hits: hits });
+  });
+  return out.sort(function (a, b) { return b.score - a.score; });
+}
+function hl(text, hits) {
+  var s = esc(text);
+  hits.forEach(function (w) { s = s.replace(new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi"), "<mark>$1</mark>"); });
+  return s;
+}
+
+// ---------- views ----------
+function bar() {
+  var nav = '<button data-go="search"' + (S.view !== "admin" ? ' aria-current="page"' : "") + ">Поиск</button>";
+  if (S.role === "admin") nav += '<button data-go="admin"' + (S.view === "admin" ? ' aria-current="page"' : "") + ">Админка</button>";
+  nav += '<button data-go="logout">Выйти</button>';
+  return '<header class="bar"><div class="wrap"><div class="bar-in"><button class="brand" data-go="search" aria-label="Izde, на главную">Izde</button><span class="org">IITU</span><nav class="nav" aria-label="Разделы">' + nav + "</nav></div></div></header>";
+}
+function searchBox() {
+  return '<div class="sgroup"><form class="sbox" id="sform" role="search"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"></circle><path d="M14 14l4 4"></path></svg>' +
+    '<input id="q" type="search" autocomplete="off" placeholder="Спросите своими словами" aria-label="Поисковый запрос" value="' + esc(S.q) + '"><button class="go" type="submit" aria-label="Найти"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"></path></svg></button></form>' +
+    '<div class="seg modes" role="group" aria-label="Режим поиска"><button type="button" data-mode="meaning" aria-pressed="' + (S.mode === "meaning") + '">По смыслу</button><button type="button" data-mode="keyword" aria-pressed="' + (S.mode === "keyword") + '">По словам</button></div></div>';
+}
+function chips() { return '<div class="sug">' + EXAMPLES.map(function (e) { return '<button class="chip" type="button" data-ex="' + esc(e) + '">' + esc(e) + "</button>"; }).join("") + "</div>"; }
+var FOOT = '<p class="foot">Это прототип. Поиск и ответы имитируются в браузере, но названия документов и цитаты взяты из открытых PDF на iitu.edu.kz.</p>';
+
+function vLogin() {
+  return '<div class="wrap login"><form class="login-card" id="login"><div><h1>Izde</h1><p>Поиск по документам университета</p></div>' +
+    '<label class="field" for="email">Почта<input id="email" type="email" value="student@iitu.edu.kz" autocomplete="username"></label>' +
+    '<label class="field" for="pass">Пароль<input id="pass" type="password" value="demo-pass" autocomplete="current-password"></label>' +
+    '<div class="field">Войти как<div class="seg" role="group" aria-label="Роль"><button type="button" data-role="student" aria-pressed="' + (S.role === "student") + '">Студент</button><button type="button" data-role="admin" aria-pressed="' + (S.role === "admin") + '">Администратор</button></div></div>' +
+    '<button class="btn" type="submit">Войти</button><p class="hint">Демо-вход: подойдут любые почта и пароль.</p></form></div>';
+}
+function vSearch() {
+  return bar() + '<main class="wrap"><div class="col"><section class="hero"><h1 class="wordmark">Izde<i>.</i></h1><p class="lead">Спросите своими словами. Izde найдёт нужный пункт в документах университета.</p>' + searchBox() + '<div class="try"><span class="try-h">Попробуйте</span>' + chips() + '</div><p class="stat">Документов IITU в базе: ' + (Object.keys(DOCS).length + QUEUE.length) + ", готовы к поиску: " + Object.keys(DOCS).length + "</p></section></div></main>";
+}
+function vResults() {
+  var res = search(S.q, S.mode), body = "";
+  if (!res.length) {
+    body = '<div class="empty"><h2>Ничего не нашлось</h2><p>' + (S.mode === "keyword"
+      ? "В режиме «По словам» Izde ищет точные слова из запроса, а эти документы написаны на английском. Переключитесь на «По смыслу»."
+      : "В прототипе проиндексировано три документа. Попробуйте один из примеров.") + "</p>" + chips() + "</div>";
+  } else {
+    var top = res[0].c;
+    if (S.mode === "meaning") body += '<section class="answer" aria-label="Ответ"><span class="label">Ответ по документам</span><p>' + esc(top.answer) + '</p><button class="src" data-open="' + top.id + '">Источник: ' + esc(DOCS[top.doc].title) + ", " + esc(top.no) + " →</button></section>";
+    body += '<p class="count">Найдено фрагментов: ' + res.length + '</p><div class="list">' + res.map(function (r) {
+      var d = DOCS[r.c.doc];
+      return '<button class="hit" data-open="' + r.c.id + '"><h3>' + esc(d.title) + '</h3><span class="meta">' + esc(d.code) + " · " + esc(r.c.sec) + " · " + esc(r.c.no) + '</span><span class="quote">' + hl(r.c.text, r.hits) + "</span></button>";
+    }).join("") + "</div>";
+  }
+  return bar() + '<main class="wrap"><div class="col results">' + searchBox() + body + FOOT + "</div></main>";
+}
+function vDoc() {
+  var d = DOCS[S.doc], cl = CLAUSES.filter(function (c) { return c.doc === S.doc; });
+  return bar() + '<main class="wrap"><div class="col doc"><button class="back" data-go="back">← К результатам</button><div><h1>' + esc(d.title) + '</h1><p class="meta">' + esc(d.code) + " · " + esc(d.org) + " · язык: " + esc(d.lang) + ' · <a href="' + d.url + '" target="_blank" rel="noopener">открыть PDF на iitu.edu.kz</a></p></div>' +
+    '<section class="card"><h2>Найденные пункты</h2>' + cl.map(function (c) {
+      return '<div class="clause' + (c.id === S.clause ? " on" : "") + '"><span class="meta">' + esc(c.sec) + " · " + esc(c.no) + '</span><span class="quote">' + esc(c.text) + "</span></div>";
+    }).join("") + '</section><section class="card"><h2>Оглавление</h2><ul class="toc">' + d.toc.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul></section>" +
+    '<p class="foot">В прототипе карточка показывает оглавление и пункты, которые участвуют в поиске. Полный текст документа появится в рабочей версии.</p></div></main>';
+}
+function vAdmin() {
+  var ready = Object.keys(DOCS).map(function (k) { return { title: DOCS[k].title, code: DOCS[k].code, lang: DOCS[k].lang, url: DOCS[k].url, ok: true }; });
+  var all = ready.concat(QUEUE), n = all.length;
+  return bar() + '<main class="wrap"><div class="col wide admin"><div class="admin-head"><div><h1>Документы</h1><p class="meta">Готово к поиску: ' + ready.length + " · в очереди: " + QUEUE.length + '</p></div><button class="btn" id="upload" type="button">Загрузить PDF или DOCX</button></div>' +
+    '<p class="note" id="upnote" hidden>В прототипе загрузка отключена. В рабочей версии файл попадёт в очередь, будет разобран на фрагменты и появится в поиске.</p>' +
+    '<section class="card usage"><span class="meta">Тариф Free: ' + n + " из " + PLAN_LIMIT + ' документов</span><div class="meter" role="img" aria-label="Занято ' + n + " из " + PLAN_LIMIT + '"><i style="width:' + (n / PLAN_LIMIT * 100) + '%"></i></div></section>' +
+    '<div class="list"><div class="drow head"><span>Документ</span><span>Код</span><span>Язык</span><span>Статус</span></div>' + all.map(function (x) {
+      return '<div class="drow"><span class="t"><a href="' + x.url + '" target="_blank" rel="noopener">' + esc(x.title) + '</a></span><span class="meta">' + esc(x.code) + '</span><span class="meta lang">' + esc(x.lang) + '</span><span class="pill ' + (x.ok ? "ok" : "wait") + '">' + (x.ok ? "Готов" : "В очереди") + "</span></div>";
+    }).join("") + "</div>" +
+    '<p class="foot">Все семь документов есть на iitu.edu.kz. Три прочитаны и участвуют в поиске, четыре найдены, но ещё не разобраны, поэтому стоят в очереди.</p></div></main>';
+}
+
+function render(focusSearch) {
+  app.innerHTML = { login: vLogin, search: vSearch, results: vResults, doc: vDoc, admin: vAdmin }[S.view]();
+  window.scrollTo(0, 0);
+  if (focusSearch) { var q = document.getElementById("q"); if (q) q.focus(); }
+  typePlaceholder();
+}
+// the home search field types out example questions while it is empty
+var phTimer;
+function typePlaceholder() {
+  clearTimeout(phTimer);
+  if (S.view !== "search" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var i = 0, n = 0, dir = 1;
+  (function tick() {
+    var el = document.getElementById("q");
+    if (!el || S.view !== "search") return;
+    var t = EXAMPLES[i], wait = dir > 0 ? 55 : 22;
+    n += dir;
+    el.placeholder = t.slice(0, n) || " ";
+    if (n === t.length) { dir = -1; wait = 1600; } else if (n === 0) { dir = 1; i = (i + 1) % EXAMPLES.length; wait = 350; }
+    phTimer = setTimeout(tick, wait);
+  })();
+}
+function run(q) { S.q = q.trim(); S.view = S.q ? "results" : "search"; render(); }
+
+app.addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (e.target.id === "login") { S.view = "search"; S.q = ""; render(true); }
+  if (e.target.id === "sform") run(document.getElementById("q").value);
+});
+app.addEventListener("click", function (e) {
+  var t = e.target.closest("button"); if (!t) return;
+  var d = t.dataset;
+  if (d.role) { S.role = d.role; var em = document.getElementById("email"); var v = em.value; render(); document.getElementById("email").value = d.role === "admin" && v === "student@iitu.edu.kz" ? "admin@iitu.edu.kz" : v; }
+  else if (d.mode) { S.mode = d.mode; var q = document.getElementById("q"); S.q = q ? q.value.trim() : S.q; render(); }
+  else if (d.ex) run(d.ex);
+  else if (d.open) { var c = CLAUSES.filter(function (x) { return x.id === d.open; })[0]; S.doc = c.doc; S.clause = c.id; S.view = "doc"; render(); }
+  else if (d.go === "search") { S.q = ""; S.view = "search"; render(true); }
+  else if (d.go === "admin") { S.view = "admin"; render(); }
+  else if (d.go === "back") { S.view = S.q ? "results" : "search"; render(); }
+  else if (d.go === "logout") { S.view = "login"; S.role = "student"; render(); }
+  else if (t.id === "upload") { document.getElementById("upnote").hidden = false; }
+});
+render();
+</script>
