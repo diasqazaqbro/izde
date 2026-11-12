@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { ContinueInChat } from "@/components/search/continue-in-chat";
 import { ExampleChips } from "@/components/search/example-chips";
 import { SearchBox } from "@/components/search/search-box";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -69,6 +70,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
                 {t("results.source", { doc: source.doc.title, clause: source.clause.number })}
                 <ArrowRight aria-hidden size={14} />
               </Link>
+              <ContinueInChat question={q} answer={answer} />
             </section>
           )}
 

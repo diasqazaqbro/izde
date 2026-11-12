@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, MessageSquare } from "lucide-react";
 import { BackButton } from "@/components/back-button";
+import { buttonClass } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { getT } from "@/lib/i18n/server";
 
@@ -41,6 +43,12 @@ export default async function DocPage({ params, searchParams }: PageProps<"/docs
             <ExternalLink aria-hidden size={13} />
           </a>
         </p>
+        {doc.status === "ready" && (
+          <Link href={{ pathname: "/chat", query: { doc: doc.id } }} className={buttonClass("secondary", "mt-2 w-fit")}>
+            <MessageSquare aria-hidden size={16} />
+            {t("doc.ask")}
+          </Link>
+        )}
       </header>
 
       {clauses.length > 0 && (
