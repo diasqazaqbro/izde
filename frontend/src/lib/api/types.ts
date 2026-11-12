@@ -43,7 +43,7 @@ export interface Citation {
 
 export interface SearchResult {
   hits: SearchHit[];
-  answer: { text: string; citations: Citation[] } | null; // only in "meaning" mode
+  answer: { text: string; citations: Citation[]; lang: Lang } | null; // only in "meaning" mode
 }
 
 // "none" matches documents where the field is not filled in
@@ -63,6 +63,7 @@ export interface ChatMessage {
   feedbackComment?: string;
   steps?: { text: string; docs: string[] }; // the last "status" event, kept for the expandable steps line
   suggestions?: string[];
+  lang?: Lang; // language of an assistant answer; the UI notes when it differs from the interface
   createdAt: string;
 }
 

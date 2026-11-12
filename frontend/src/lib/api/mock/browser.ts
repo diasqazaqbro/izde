@@ -5,7 +5,11 @@ import type { Lang } from "../types";
 
 function readCookie(name: string) {
   const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return m ? decodeURIComponent(m[1]) : undefined;
+  try {
+    return m ? decodeURIComponent(m[1]) : undefined;
+  } catch {
+    return undefined; // a hand-edited cookie with a broken %-escape
+  }
 }
 
 export function currentEmail() {
@@ -21,12 +25,13 @@ export function currentLang(): Lang {
   return v === "kk" || v === "en" ? v : "ru";
 }
 
-export function readJSON<T>(key: string, fallback: T): T {
+// Returns unknown on purpose: callers check the shape (see valid.ts), the user can edit localStorage.
+export function readJSON(key: string): unknown {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    return raw ? JSON.parse(raw) : undefined;
   } catch {
-    return fallback;
+    return undefined;
   }
 }
 

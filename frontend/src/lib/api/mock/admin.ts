@@ -1,7 +1,9 @@
-import { UPLOAD_DISABLED, type Api, type Chat, type Role, type User } from "../types";
+import { UPLOAD_DISABLED, type Api, type User } from "../types";
 import { setPlan, currentPlan, PLANS } from "./billing";
 import { readJSON, sleep, writeJSON } from "./browser";
+import { readFeedback } from "./chat";
 import { DOCS } from "./data";
+import { rolesMap } from "./valid";
 
 // Query statistics and the user list do not exist yet (docs/05-data.md): these are demo numbers,
 // marked as such in the UI. Users are anonymous on purpose.
@@ -28,20 +30,14 @@ const DEMO_USERS: User[] = [
 ];
 const ROLES_KEY = "izde.roles";
 
-// "Полезно / Не то" from every chat stored in this browser.
+// "Полезно / Не то" given in this browser, by every user.
 function feedback() {
-  const out = { up: 0, down: 0, comments: [] as string[] };
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (!key?.startsWith("izde.chats.")) continue;
-    for (const chat of readJSON<Chat[]>(key, []))
-      for (const m of chat.messages) {
-        if (m.feedback === "up") out.up++;
-        if (m.feedback === "down") out.down++;
-        if (m.feedbackComment) out.comments.push(m.feedbackComment);
-      }
-  }
-  return out;
+  const log = readFeedback();
+  return {
+    up: log.filter((f) => f.value === "up").length,
+    down: log.filter((f) => f.value === "down").length,
+    comments: log.flatMap((f) => (f.comment ? [f.comment] : [])),
+  };
 }
 
 export const adminApi: Pick<
@@ -73,11 +69,12 @@ export const adminApi: Pick<
   },
 
   async listUsers() {
-    const roles = readJSON<Record<string, Role>>(ROLES_KEY, {});
+    const roles = rolesMap(readJSON(ROLES_KEY));
     return { users: DEMO_USERS.map((u) => ({ ...u, role: roles[u.email] ?? u.role })), demo: true };
   },
 
   async setUserRole(email, role) {
-    writeJSON(ROLES_KEY, { ...readJSON<Record<string, Role>>(ROLES_KEY, {}), [email]: role });
+    if (!DEMO_USERS.some((u) => u.email === email)) return;
+    writeJSON(ROLES_KEY, { ...rolesMap(readJSON(ROLES_KEY)), [email]: role });
   },
 };

@@ -1,5 +1,6 @@
 import type { Plan } from "../types";
 import { currentEmail, readJSON, writeJSON } from "./browser";
+import { count } from "./valid";
 
 // Prices and question limits are examples (docs/01-product.md: the price is conditional).
 export const PLANS: Plan[] = [
@@ -11,7 +12,7 @@ export const PLANS: Plan[] = [
 const PLAN_KEY = "izde.plan";
 
 export function currentPlan(): Plan {
-  const id = readJSON<Plan["id"]>(PLAN_KEY, "free");
+  const id = readJSON(PLAN_KEY);
   return PLANS.find((p) => p.id === id) ?? PLANS[0];
 }
 
@@ -24,7 +25,7 @@ function usageKey() {
 }
 
 export function questionsToday() {
-  return readJSON(usageKey(), 0);
+  return count(readJSON(usageKey()));
 }
 
 export function countQuestion() {

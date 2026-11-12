@@ -24,7 +24,7 @@ export const mockApi: Api = {
       hits: found.map((f) => f.hit),
       answer:
         mode === "meaning" && top
-          ? { text: top.answer, citations: [{ index: 1, clauseId: top.id, docId: top.docId }] }
+          ? { text: top.answer, citations: [{ index: 1, clauseId: top.id, docId: top.docId }], lang: "ru" }
           : null,
     };
   },

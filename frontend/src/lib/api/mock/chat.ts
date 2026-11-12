@@ -3,11 +3,17 @@ import { makeT } from "../../i18n";
 import { countQuestion, currentPlan, questionsToday } from "./billing";
 import { currentEmail, currentLang, readJSON, sleep, uid, writeJSON } from "./browser";
 import { match } from "./search";
+import { isChat, isFeedback, listOf, type FeedbackEntry } from "./valid";
 
 // Chat history lives in this browser's localStorage, one list per user (docs/03-chat.md, phase 1).
 
 const key = () => `izde.chats.${currentEmail()}`;
-const load = () => readJSON<Chat[]>(key(), []);
+const load = () => listOf(readJSON(key()), isChat);
+
+// "Полезно / Не то" also go to a separate log, like an analytics event on the server:
+// a retry replaces the answer in the chat, but the rating of the old answer stays counted.
+export const FEEDBACK_KEY = "izde.feedback";
+export const readFeedback = () => listOf(readJSON(FEEDBACK_KEY), isFeedback);
 const save = (chats: Chat[]) => writeJSON(key(), chats);
 const now = () => new Date().toISOString();
 
@@ -40,7 +46,8 @@ async function* sendMessage(
   // What a failed fetch looks like to the caller.
   if (typeof navigator !== "undefined" && navigator.onLine === false) throw new TypeError("Failed to fetch");
 
-  const t = makeT(currentLang());
+  const lang = currentLang();
+  const t = makeT(lang);
   const question = text.trim().slice(0, MAX_QUESTION);
   if (!question) return;
   if (questionsToday() >= currentPlan().questionLimit) {
@@ -108,6 +115,8 @@ async function* sendMessage(
       citations: answer ? citations : [],
       steps,
       suggestions,
+      // the prepared answers exist only in Russian; "not in the documents" is in the interface language
+      lang: citations.length ? "ru" : lang,
       createdAt: now(),
     };
     if (signal.aborted) reply.stopped = true;
@@ -151,11 +160,14 @@ export const chatApi: Pick<
   sendMessage,
 
   async setFeedback(chatId, messageId, value, comment) {
+    const text = value === "down" ? comment?.trim().slice(0, 500) || undefined : undefined;
     update(chatId, (c) => {
       const m = c.messages.find((x) => x.id === messageId);
       if (!m) return;
       m.feedback = value;
-      m.feedbackComment = value === "down" ? comment?.trim() || undefined : undefined;
+      m.feedbackComment = text;
     });
+    const entry: FeedbackEntry = { messageId, value, ...(text && { comment: text }) };
+    writeJSON(FEEDBACK_KEY, [...readFeedback().filter((f) => f.messageId !== messageId), entry]);
   },
 };
