@@ -1,12 +1,10 @@
 import type { Api } from "../types";
+import { adminApi } from "./admin";
 import { chatApi } from "./chat";
 import { CLAUSES, DOCS } from "./data";
 import { docById, match, toClause } from "./search";
 
-// Billing and admin methods come with step 3.
-type MockApi = Pick<Api, "login" | "logout" | "search" | "getDoc" | "listDocs"> & typeof chatApi;
-
-export const mockApi: MockApi = {
+export const mockApi: Api = {
   async login(email, _password, role) {
     return { email, role };
   },
@@ -34,4 +32,5 @@ export const mockApi: MockApi = {
   },
 
   ...chatApi,
+  ...adminApi,
 };

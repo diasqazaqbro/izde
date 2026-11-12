@@ -78,6 +78,7 @@ export type ChatEvent =
   | { type: "error"; message: string };
 
 export const MAX_QUESTION = 2000; // characters, docs/03-chat.md
+export const UPLOAD_DISABLED = "upload_disabled"; // error message of uploadDoc in the demo
 
 export interface SendOptions {
   scope?: Chat["scope"]; // the scope can change between questions in one chat
@@ -90,6 +91,14 @@ export interface Plan {
   docLimit: number;
   questionLimit: number; // chat questions per user per day
   price: number; // KZT per month, 0 for free; the UI formats it and marks it as an example
+}
+
+export interface Analytics {
+  demo: boolean; // phase 1: query statistics do not exist yet, the UI marks them as demo data
+  queriesWeek: number;
+  topQueries: { query: string; count: number }[];
+  noResults: { query: string; count: number }[];
+  feedback: { up: number; down: number; comments: string[] }; // real: counted from chats
 }
 
 export interface User {
@@ -114,8 +123,12 @@ export interface Api {
   setFeedback(chatId: string, messageId: string, value: "up" | "down", comment?: string): Promise<void>;
 
   listDocs(): Promise<Doc[]>;
-  uploadDoc(file: File): Promise<Doc>; // phase 1: rejects with "upload disabled in demo"
+  uploadDoc(file: File): Promise<Doc>; // phase 1: rejects with UPLOAD_DISABLED
   getUsage(): Promise<{ plan: Plan; docCount: number }>;
   listPlans(): Promise<Plan[]>;
   checkout(planId: Plan["id"]): Promise<{ ok: boolean }>; // stub
+
+  getAnalytics(): Promise<Analytics>;
+  listUsers(): Promise<{ users: User[]; demo: boolean }>;
+  setUserRole(email: string, role: Role): Promise<void>;
 }
