@@ -84,3 +84,12 @@
 - **Данные из `localStorage` проверяются при чтении** (`mock/valid.ts`). Испорченные записи отбрасываются по одной, а не все сразу.
 - **Ограничения ввода**: запрос поиска до 500 символов, подсветка по 50 уникальным словам, файл до 20 МБ, только `.pdf` и `.docx` с подходящим MIME-типом, почта до 254 символов.
 - **Статус 503 у предзагрузок в журнале сети Chrome MCP — не ошибка сервера.** В логе сервера ошибок нет, Resource Timing браузера показывает 200 у всех `?_rsc`-запросов, Playwright и прямой `fetch` тоже получают 200. Записываю, чтобы при следующей проверке на это не тратить время.
+
+## Публикация
+
+- **GitHub**: публичный репозиторий https://github.com/diasqazaqbro/izde, ветки `main` и `dev`. `dev` влит в `main` перемоткой (fast-forward), без squash.
+- **Vercel**: проект `izde` в личной команде «Dias' projects» (Hobby), а не в рабочей `livin-team`. Root Directory — `frontend`, фреймворк Next.js, production-ветка `main`. Проект подключён к GitHub: пуш в `main` — production, в `dev` — preview.
+- **Адрес сайта — https://izde-five.vercel.app.** Имя `izde.vercel.app` занято, Vercel выдал следующее свободное.
+- **Node.js 24.x (LTS)** вместо предложенной по умолчанию 26.x: Next 16 поддерживает её, и это LTS.
+- **`vercel link` создал `.env.local` с временным токеном `VERCEL_OIDC_TOKEN`.** Файл попадал под `.env*` в `.gitignore`, в git не ушёл и удалён: переменные окружения проекту не нужны. Папку `.vercel` CLI сам добавил в `.gitignore`.
+- **HSTS на production** выставляет Vercel (`max-age=63072000; includeSubDomains; preload`), cookie сессии там уходит с `Secure`.
