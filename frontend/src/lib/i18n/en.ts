@@ -210,7 +210,7 @@ export const en: Dict = {
 
   "pricing.title": "Plans",
   "pricing.lead": "A plan limits the number of documents in the base and chat questions. Search has no limits.",
-  "pricing.example": "Example price",
+  "pricing.example": "Price and question limit are examples",
   "pricing.free": "Free",
   "pricing.perMonth": "{price} ₸ per month",
   "pricing.docs": "Up to {n} documents",
@@ -231,6 +231,10 @@ export const en: Dict = {
   "demo.note":
     "Demo version: search and answers are simulated, but document titles and quotes come from public PDFs on iitu.edu.kz.",
 
+  "answer.inRussian": "This answer is in Russian: the demo data has no English translation.",
+  "upload.size": "“{name}” is empty or larger than 20 MB.",
+  "chat.interrupted": "The answer was cut off: the page was closed or reloaded while it was typing.",
+  "pricing.example.limit": "Question limit is an example",
   "notFound.title": "Page not found",
   "notFound.text": "The link is outdated or wrong.",
   "notFound.action": "Go to home",

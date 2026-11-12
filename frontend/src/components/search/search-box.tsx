@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import type { Filters, SearchMode } from "@/lib/api";
+import { MAX_QUERY } from "@/lib/text";
 import { useT } from "@/lib/i18n/client";
 import { Segmented } from "@/components/ui/segmented";
 import { ExampleChips } from "./example-chips";
@@ -79,6 +80,7 @@ export function SearchBox({
           name="q"
           type="search"
           defaultValue={query}
+          maxLength={MAX_QUERY}
           autoComplete="off"
           placeholder={t("search.placeholder")}
           aria-label={t("search.label")}

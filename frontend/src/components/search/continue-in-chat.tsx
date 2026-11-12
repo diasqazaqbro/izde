@@ -19,7 +19,14 @@ export function ContinueInChat({ question, answer }: { question: string; answer:
     const markers = answer.citations.map((c) => ` [${c.index}]`).join("");
     const chat = await api.createChat({ type: "all" }, [
       { id: "seed-q", role: "user", text: question, citations: [], createdAt },
-      { id: "seed-a", role: "assistant", text: answer.text + markers, citations: answer.citations, createdAt },
+      {
+        id: "seed-a",
+        role: "assistant",
+        text: answer.text + markers,
+        citations: answer.citations,
+        lang: answer.lang,
+        createdAt,
+      },
     ]);
     router.push(`/chat/${chat.id}`);
   }

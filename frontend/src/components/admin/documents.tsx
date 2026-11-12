@@ -5,11 +5,10 @@ import { ExternalLink, Upload } from "lucide-react";
 import { api, UPLOAD_DISABLED } from "@/lib/api";
 import { useT } from "@/lib/i18n/client";
 import { useData } from "@/lib/use-data";
+import { checkUpload, safeExternalUrl, UPLOAD_ACCEPT } from "@/lib/text";
 import { buttonClass } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { StatusPill } from "@/components/ui/status-pill";
-
-const ACCEPT = [".pdf", ".docx"];
 
 function UploadZone() {
   const t = useT();
@@ -19,8 +18,10 @@ function UploadZone() {
 
   async function upload(file?: File) {
     if (!file) return;
-    if (!ACCEPT.some((ext) => file.name.toLowerCase().endsWith(ext))) {
-      setMessage({ text: t("upload.wrongType", { name: file.name }), error: true });
+    const check = checkUpload(file);
+    if (check !== "ok") {
+      setMessage({ text: t(check === "type" ? "upload.wrongType" : "upload.size", { name: file.name }), error: true });
+      if (input.current) input.current.value = "";
       return;
     }
     setMessage({ text: t("upload.busy", { name: file.name }), error: false });
@@ -59,7 +60,7 @@ function UploadZone() {
           <input
             ref={input}
             type="file"
-            accept={ACCEPT.join(",")}
+            accept={UPLOAD_ACCEPT}
             onChange={(e) => upload(e.target.files?.[0])}
             className="sr-only"
           />
@@ -68,7 +69,7 @@ function UploadZone() {
       </div>
       <p
         role="status"
-        className={message ? `rounded-field px-4 py-3 text-sm ${message.error ? "bg-danger-soft text-danger" : "bg-wait-soft text-wait"}` : "sr-only"}
+        className={message ? `rounded-field px-4 py-3 text-sm [overflow-wrap:anywhere] ${message.error ? "bg-danger-soft text-danger" : "bg-wait-soft text-wait"}` : "sr-only"}
       >
         {message?.text}
       </p>
@@ -95,7 +96,7 @@ export function Documents() {
             cells: [
               <a
                 key="t"
-                href={d.sourceUrl}
+                href={safeExternalUrl(d.sourceUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block py-3 text-accent hover:underline sm:py-0"

@@ -7,39 +7,30 @@ import { ExampleChips } from "@/components/search/example-chips";
 import { SearchFilters } from "@/components/search/filters";
 import { SearchBox } from "@/components/search/search-box";
 import { EmptyState } from "@/components/ui/empty-state";
-import { api, type DocType, type Filters, type SearchHit, type SearchMode } from "@/lib/api";
-import { getT } from "@/lib/i18n/server";
+import { api, type Filters, type SearchHit, type SearchMode } from "@/lib/api";
+import { getLang, getT } from "@/lib/i18n/server";
+import { highlightParts, MAX_QUERY } from "@/lib/text";
 
 export async function generateMetadata({ searchParams }: PageProps<"/search">): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: typeof q === "string" ? q : undefined };
+  return { title: typeof q === "string" ? q.slice(0, 80) : undefined };
 }
 
 function clauseHref({ doc, clause }: SearchHit) {
   return { pathname: `/docs/${doc.id}`, query: { clause: clause.id } };
 }
 
-function escapeRe(s: string) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function Highlight({ text, words }: { text: string; words: string[] }) {
-  if (!words.length) return text;
-  // split() with a capture group puts matches at odd indexes
-  const parts = text.split(new RegExp(`(${words.map(escapeRe).join("|")})`, "gi"));
-  return parts.map((part, i) => (i % 2 ? <mark key={i}>{part}</mark> : part));
+  return highlightParts(text, words).map((part, i) => (i % 2 ? <mark key={i}>{part}</mark> : part));
 }
 
 export default async function SearchPage({ searchParams }: PageProps<"/search">) {
   const params = await searchParams;
-  const q = typeof params.q === "string" ? params.q.trim() : "";
+  const q = typeof params.q === "string" ? params.q.trim().slice(0, MAX_QUERY) : "";
   if (!q) redirect("/");
   const mode: SearchMode = params.mode === "keyword" ? "keyword" : "meaning";
-  const pick = (v: unknown) => (typeof v === "string" && v ? v : undefined);
-  const filters: Filters = { type: pick(params.type) as DocType | undefined, year: pick(params.year), dept: pick(params.dept) };
 
-  const t = await getT();
-  const [{ hits, answer }, docs] = await Promise.all([api.search(q, mode, filters), api.listDocs()]);
+  const [t, lang, docs] = await Promise.all([getT(), getLang(), api.listDocs()]);
   // Options come from searchable documents; empty year and department show up as "not specified".
   const ready = docs.filter((d) => d.status === "ready");
   const options = {
@@ -47,6 +38,14 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
     years: [...new Set(ready.map((d) => (d.year === null ? "none" : String(d.year))))],
     depts: [...new Set(ready.map((d) => d.dept ?? "none"))],
   };
+  // Unknown values from the address are ignored, not passed on.
+  const pick = <T extends string>(v: unknown, allowed: T[]) => (allowed.includes(v as T) ? (v as T) : undefined);
+  const filters: Filters = {
+    type: pick(params.type, options.types),
+    year: pick(params.year, options.years),
+    dept: pick(params.dept, options.depts),
+  };
+  const { hits, answer } = await api.search(q, mode, filters);
   const filtered = Object.values(filters).some(Boolean);
   const source = answer && hits.find((h) => h.clause.id === answer.citations[0]?.clauseId);
   const examples = [t("example.1"), t("example.2"), t("example.3"), t("example.4")];
@@ -75,6 +74,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
                 {t("results.answer")}
               </h2>
               <p className="text-lg leading-[1.45]">{answer.text}</p>
+              {answer.lang === "ru" && lang !== "ru" && <p className="text-[13px] text-muted">{t("answer.inRussian")}</p>}
               <Link
                 href={clauseHref(source)}
                 className="inline-flex min-h-11 w-fit items-center gap-1 text-sm text-accent hover:underline sm:min-h-0"

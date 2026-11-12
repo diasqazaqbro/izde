@@ -82,7 +82,7 @@ function PlanCard({ plan, current, onChoose }: { plan: Plan; current: boolean; o
       </div>
       <div>
         <p className="text-2xl font-bold tracking-[-0.02em]">{price}</p>
-        {plan.price > 0 && <p className="text-[13px] text-muted">{t("pricing.example")}</p>}
+        <p className="text-[13px] text-muted">{t(plan.price > 0 ? "pricing.example" : "pricing.example.limit")}</p>
       </div>
       <ul className="flex flex-1 flex-col gap-2 text-[15px]">
         {[

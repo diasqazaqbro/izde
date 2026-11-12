@@ -6,6 +6,7 @@ import { BackButton } from "@/components/back-button";
 import { buttonClass } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { getT } from "@/lib/i18n/server";
+import { safeExternalUrl } from "@/lib/text";
 
 const CARD = "flex flex-col gap-3.5 rounded-card border border-line bg-surface p-[22px]";
 
@@ -34,7 +35,7 @@ export default async function DocPage({ params, searchParams }: PageProps<"/docs
           {[doc.code, doc.org, t("doc.lang", { lang: t(`lang.${doc.lang}`) })].filter(Boolean).join(" · ")}
           {" · "}
           <a
-            href={doc.sourceUrl}
+            href={safeExternalUrl(doc.sourceUrl)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-accent hover:underline"
