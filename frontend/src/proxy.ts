@@ -18,7 +18,7 @@ function csp(nonce: string) {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "frame-ancestors 'none'",
+    "frame-ancestors 'self'", // no framing by other sites (clickjacking); 'self' keeps same-site frames possible
   ].join("; ");
 }
 
