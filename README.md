@@ -4,6 +4,12 @@ Smart search for university documents: keyword search, search by meaning, and a 
 
 "Izde" means "search" in Kazakh. Web Programming course project, IITU, 2026. The project is linked to our diploma (a parser for Kazakhstan national standards): it uses the same pipeline (parse, structure, search) on university documents.
 
+## Demo
+
+**https://izde-five.vercel.app**
+
+Sign in with any email and password. Pick "Администратор" on the sign-in form to see the admin pages and plans. Document titles and quotes come from real public IITU documents; search and chat answers are simulated in phase 1, and chats are kept in your browser.
+
 ## Team
 
 | Name | Role | Responsible for |
