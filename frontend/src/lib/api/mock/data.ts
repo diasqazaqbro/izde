@@ -11,6 +11,9 @@ export const DOCS: Doc[] = [
     org: "IITU JSC",
     sourceUrl: "https://iitu.edu.kz/documents/2984/Academic_Policy.pdf",
     status: "ready",
+    type: "policy",
+    year: null,
+    dept: null,
     sections: [
       "1. Purpose and Scope",
       "2. Normative References",
@@ -61,6 +64,9 @@ export const DOCS: Doc[] = [
     sourceUrl:
       "https://iitu.edu.kz/documents/3487/P-40_%D0%90%D0%BA%D0%B0%D0%B4_%D2%B1%D1%82%D2%9B%D1%8B%D1%80%D0%BB%D1%8B%D2%9B_%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D1%81%D1%96_%D1%80%D0%B5%D0%B4_5_2_ENG.pdf",
     status: "ready",
+    type: "regulation",
+    year: null,
+    dept: null,
     sections: [
       "1. General Provisions",
       "2. Goals and Objectives",
@@ -83,6 +89,9 @@ export const DOCS: Doc[] = [
     sourceUrl:
       "https://iitu.edu.kz/documents/3508/Appendix_IV.1.10_P__117_-_Regulation_on_research_practice_of_PhD_students.pdf",
     status: "ready",
+    type: "regulation",
+    year: null,
+    dept: null,
     sections: [
       "1. General Provisions",
       "2. Scope",
@@ -107,6 +116,9 @@ export const DOCS: Doc[] = [
     sourceUrl:
       "https://iitu.edu.kz/documents/470/%D0%9F%D1%83%D1%82%D0%B5%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C_%D0%BF%D0%B5%D1%80%D0%B2%D0%BE%D0%BA%D1%83%D1%80%D1%81%D0%BD%D0%B8%D0%BA%D0%B0.pdf",
     status: "queued",
+    type: "guide",
+    year: null,
+    dept: null,
     sections: [],
   },
   {
@@ -118,6 +130,9 @@ export const DOCS: Doc[] = [
     sourceUrl:
       "https://iitu.edu.kz/documents/1027/R-23_%D0%9F%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0_%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%D0%B0_%D0%B8_%D0%B2%D0%BE%D1%81%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BE%D0%B1%D1%83%D1%87%D0%B0%D1%8E%D1%89%D0%B8%D1%85%D1%81%D1%8F_%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%86%D0%B8%D1%8F_2_LqsUgO4.pdf",
     status: "queued",
+    type: "rules",
+    year: null,
+    dept: null,
     sections: [],
   },
   {
@@ -129,6 +144,9 @@ export const DOCS: Doc[] = [
     sourceUrl:
       "https://iitu.edu.kz/documents/150/%D0%9A%D0%BE%D0%B4%D0%B5%D0%BA%D1%81_%D0%B0%D0%BA%D0%B0%D0%B4%D0%B5%D0%BC%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B9_%D1%87%D0%B5%D1%81%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8_1.pdf",
     status: "queued",
+    type: "code",
+    year: null,
+    dept: null,
     sections: [],
   },
   {
@@ -140,6 +158,9 @@ export const DOCS: Doc[] = [
     sourceUrl:
       "https://iitu.edu.kz/documents/3505/Appendix_IV.1.7_-P_-_52_Regulation_on_scientific_consultants_for_PhD_students.pdf",
     status: "queued",
+    type: "regulation",
+    year: null,
+    dept: null,
     sections: [],
   },
 ];
@@ -157,7 +178,7 @@ export const CLAUSES: MockClause[] = [
     number: "п. 15.3",
     section: "15. Assessment of Students' Academic Achievements",
     text: 'Upon receipt of the "FX" "unsatisfactory" grade, it is allowed to retake the final exam.',
-    tags: ["пересда", "экзамен", "fx", "неуд", "retake", "завал"],
+    tags: ["пересда", "экзамен", "fx", "неуд", "retake", "завал", "емтихан", "қайта тапсыр"],
     answer: "Да. При оценке FX («неудовлетворительно») разрешается пересдать итоговый экзамен.",
   },
   {
@@ -166,7 +187,7 @@ export const CLAUSES: MockClause[] = [
     number: "п. 10.3",
     section: "10. Attendance Requirements",
     text: "In case of missing more than 20% of discipline classes without good reason…",
-    tags: ["пропус", "посещ", "прогул", "attendance", "не ходить", "20%"],
+    tags: ["пропус", "посещ", "прогул", "attendance", "не ходить", "20%", "miss", "сабақ", "жібер", "қатыс"],
     answer:
       "В академической политике задан порог: пропуск более 20% занятий по дисциплине без уважительной причины. Что за этим следует, написано в самом пункте 10.3.",
   },
@@ -176,7 +197,7 @@ export const CLAUSES: MockClause[] = [
     number: "п. 29.7",
     section: "29. Procedure for Providing Academic Leave",
     text: "The student is obliged to issue an exit from academic leave at the end of the period specified in the order.",
-    tags: ["академ", "отпуск", "leave", "академка"],
+    tags: ["академ", "отпуск", "leave", "академка", "демалыс"],
     answer: "Когда срок, указанный в приказе, заканчивается, студент обязан оформить выход из академического отпуска.",
   },
   {
@@ -223,7 +244,7 @@ export const CLAUSES: MockClause[] = [
     number: "п. 8.2",
     section: "8. Procedure for Completing Research Scientific Training",
     text: "The total volume of research scientific training is 10 credits in accordance with the SCSE.",
-    tags: ["докторант", "phd", "кредит", "стажиров", "практик", "научн"],
+    tags: ["докторант", "phd", "кредит", "стажиров", "практик", "научн", "тағылымдама"],
     answer: "Общий объём научной стажировки докторанта составляет 10 кредитов.",
   },
   {

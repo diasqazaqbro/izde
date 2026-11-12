@@ -4,6 +4,7 @@ export type Lang = "ru" | "kk" | "en";
 export type Role = "student" | "staff" | "admin";
 export type SearchMode = "meaning" | "keyword";
 export type DocStatus = "ready" | "queued" | "processing" | "failed";
+export type DocType = "policy" | "regulation" | "rules" | "guide" | "code";
 
 export interface Doc {
   id: string;
@@ -14,6 +15,9 @@ export interface Doc {
   sourceUrl: string;
   status: DocStatus;
   sections: string[];
+  type: DocType; // from the title: Policy, Regulations (Положение), Правила, Путеводитель, Кодекс
+  year: number | null; // approval dates are empty in the PDFs (docs/05-data.md)
+  dept: string | null; // same
 }
 
 export interface Clause {
@@ -42,8 +46,9 @@ export interface SearchResult {
   answer: { text: string; citations: Citation[] } | null; // only in "meaning" mode
 }
 
+// "none" matches documents where the field is not filled in
 export interface Filters {
-  type?: string;
+  type?: DocType;
   year?: string;
   dept?: string;
 }
