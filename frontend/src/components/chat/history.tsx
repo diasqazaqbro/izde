@@ -146,7 +146,7 @@ export function History({
                     >
                       <span className="truncate">{titleOf(c)}</span>
                     </Link>
-                    <span className="flex lg:hidden lg:group-focus-within:flex lg:group-hover:flex">
+                    <span className="flex lg:pointer-fine:hidden lg:pointer-fine:group-focus-within:flex lg:pointer-fine:group-hover:flex">
                       <button
                         type="button"
                         onClick={() => setRenaming(c.id)}
