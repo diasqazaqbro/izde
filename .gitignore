@@ -12,3 +12,4 @@ coverage/
 # secrets: keep them out of the repo
 .env*
 !.env.example
+.vercel
