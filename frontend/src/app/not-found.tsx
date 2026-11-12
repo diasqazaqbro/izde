@@ -8,7 +8,7 @@ export default async function NotFound() {
   return (
     <main className="wrap grid min-h-dvh place-items-center py-8">
       <div className="w-full max-w-[400px]">
-        <EmptyState title={t("notFound.title")} text={t("notFound.text")}>
+        <EmptyState heading="h1" title={t("notFound.title")} text={t("notFound.text")}>
           <Link href="/" className={buttonClass("primary", "w-fit")}>
             {t("notFound.action")}
           </Link>

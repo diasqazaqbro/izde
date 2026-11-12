@@ -64,7 +64,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
               <p className="text-lg leading-[1.45]">{answer.text}</p>
               <Link
                 href={clauseHref(source)}
-                className="inline-flex w-fit items-center gap-1 text-sm text-accent hover:underline"
+                className="inline-flex min-h-11 w-fit items-center gap-1 text-sm text-accent hover:underline sm:min-h-0"
               >
                 {t("results.source", { doc: source.doc.title, clause: source.clause.number })}
                 <ArrowRight aria-hidden size={14} />
