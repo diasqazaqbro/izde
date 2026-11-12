@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { PanelLeft, SquarePen } from "lucide-react";
 import { api, type Chat, type ChatMessage, type Citation, type Doc } from "@/lib/api";
@@ -33,7 +33,9 @@ const HEADER_BUTTON = "grid size-11 shrink-0 place-items-center rounded-full tex
 export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
   const t = useT();
   const router = useRouter();
-  const routeId = useParams<{ id?: string }>().id;
+  // from the pathname, not useParams: Next updates usePathname after history.replaceState (see send)
+  const pathname = usePathname();
+  const routeId = pathname.startsWith("/chat/") ? decodeURIComponent(pathname.slice(6)) : undefined;
   const docParam = useSearchParams().get("doc");
   const desktop = useMediaQuery("(min-width: 1024px)");
   const touch = useMediaQuery("(pointer: coarse)");
@@ -57,6 +59,7 @@ export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const pinned = useRef(true);
   const loadedDocs = useRef(new Set<string>());
+  const sending = useRef(false); // state updates are async: a double click must not send twice
 
   const busy = pending?.streaming ?? false;
   const messages = chat?.messages ?? [];
@@ -105,9 +108,12 @@ export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
     for (const docId of citedKey ? citedKey.split(",") : []) {
       if (loadedDocs.current.has(docId)) continue;
       loadedDocs.current.add(docId);
-      api.getDoc(docId).then(({ doc, clauses }) =>
-        setSources((prev) => ({ ...prev, ...Object.fromEntries(clauses.map((clause) => [clause.id, { doc, clause }])) })),
-      );
+      api
+        .getDoc(docId)
+        .then(({ doc, clauses }) =>
+          setSources((prev) => ({ ...prev, ...Object.fromEntries(clauses.map((clause) => [clause.id, { doc, clause }])) })),
+        )
+        .catch(() => {}); // a citation to an unknown document (edited storage): the number stays without a source
     }
   }, [citedKey]);
   const lookup = (clauseId: string) => sources[clauseId];
@@ -120,12 +126,22 @@ export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
 
   async function send(text: string, replaceLast = false) {
     const question = text.trim();
-    if (!question || busy || noDocs) return;
+    if (!question || busy || noDocs || sending.current) return;
+    sending.current = true;
+    try {
+      await stream(question, replaceLast);
+    } finally {
+      sending.current = false;
+    }
+  }
+
+  async function stream(question: string, replaceLast: boolean) {
     let current = chat;
     if (!current) {
       current = await api.createChat(activeScope);
       shownId.current = current.id;
-      router.replace(`/chat/${current.id}`, { scroll: false });
+      // no server round trip: offline, router.replace would fall back to a full page load and lose the chat
+      window.history.replaceState(null, "", `/chat/${current.id}`);
     }
     const chatId = current.id;
     const controller = new AbortController();
@@ -180,6 +196,8 @@ export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
   }
 
   const lastUser = messages.findLast((m) => m.role === "user");
+  // the page was closed or reloaded while answering: the question is saved, the answer is not
+  const interrupted = !pending && messages.at(-1)?.role === "user";
 
   function editLast() {
     if (!lastUser || busy) return;
@@ -321,6 +339,18 @@ export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
                             onAsk={(q) => send(q)}
                           />
                         ),
+                      )}
+                      {interrupted && lastUser && (
+                        <div role="status" className="flex flex-col items-start gap-3 rounded-field bg-bg px-4 py-3 text-muted">
+                          {t("chat.interrupted")}
+                          <button
+                            type="button"
+                            onClick={() => send(lastUser.text, true)}
+                            className={buttonClass("secondary")}
+                          >
+                            {t("chat.error.retry")}
+                          </button>
+                        </div>
                       )}
                       {pending && (
                         <>

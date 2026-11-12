@@ -5,7 +5,7 @@ import Link from "next/link";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { Check, ChevronDown, Copy, LoaderCircle, RotateCcw, Search, Square, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import type { ChatMessage, Citation, Clause, Doc } from "@/lib/api";
-import { useT } from "@/lib/i18n/client";
+import { useLang, useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 import { Tiles } from "./tiles";
 
@@ -161,6 +161,7 @@ export function AssistantMessage({
   onAsk: (question: string) => void;
 }) {
   const t = useT();
+  const uiLang = useLang();
   const [copied, setCopied] = useState(false);
   const [comment, setComment] = useState("");
   const [askComment, setAskComment] = useState(false);
@@ -187,6 +188,9 @@ export function AssistantMessage({
         </div>
       )}
       {noAnswer && <p className="text-muted">{t("chat.noAnswer.hint")}</p>}
+      {done && message.lang === "ru" && uiLang !== "ru" && (
+        <p className="text-[13px] text-muted">{t("answer.inRussian")}</p>
+      )}
       {message.stopped && (
         <p className="inline-flex items-center gap-1.5 text-[13px] text-muted">
           <Square aria-hidden size={12} />
