@@ -253,7 +253,13 @@ export function ChatApp({ isAdmin }: { isAdmin: boolean }) {
             <aside className="w-[260px] shrink-0 overflow-y-auto border-r border-line">{history}</aside>
           )
         ) : (
-          <Sheet open={historyOpen} onClose={() => setHistoryOpen(false)} side="left" label={t("chat.history")}>
+          <Sheet
+            open={historyOpen}
+            onClose={() => setHistoryOpen(false)}
+            side="left"
+            label={t("chat.history")}
+            closeLabel={t("common.close")}
+          >
             {history}
           </Sheet>
         )}

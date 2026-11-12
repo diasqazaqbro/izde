@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { X } from "lucide-react";
 
 const SIDES = {
   left: "my-0 ml-0 mr-auto h-dvh max-h-dvh w-[min(320px,85vw)] rounded-r-card",
@@ -14,12 +15,14 @@ export function Sheet({
   onClose,
   side,
   label,
+  closeLabel,
   children,
 }: {
   open: boolean;
   onClose: () => void;
   side: keyof typeof SIDES;
   label: string;
+  closeLabel?: string; // adds a visible close button on top
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -40,7 +43,23 @@ export function Sheet({
       onClick={(e) => e.target === e.currentTarget && onClose()}
       className={`overflow-hidden bg-surface p-0 text-fg shadow-panel backdrop:bg-[rgb(29_29_31/0.4)] ${SIDES[side]}`}
     >
-      {open && <div className="h-full overflow-y-auto">{children}</div>}
+      {open && (
+        <div className="h-full overflow-y-auto">
+          {closeLabel && (
+            <div className="flex justify-end px-2 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label={closeLabel}
+                className="grid size-11 place-items-center rounded-full text-muted hover:bg-bg hover:text-fg"
+              >
+                <X aria-hidden size={18} />
+              </button>
+            </div>
+          )}
+          {children}
+        </div>
+      )}
     </dialog>
   );
 }
