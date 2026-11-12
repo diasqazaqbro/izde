@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { parseSession, SESSION_COOKIE } from "@/lib/auth/session";
+import { parseSession, SESSION_COOKIE } from "@/lib/auth/parse";
 
 // Optimistic check only: the (app) layout reads the session again before rendering.
 export function proxy(request: NextRequest) {

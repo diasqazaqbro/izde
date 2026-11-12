@@ -55,6 +55,9 @@ export interface ChatMessage {
   citations: Citation[];
   stopped?: boolean;
   feedback?: "up" | "down";
+  feedbackComment?: string;
+  steps?: { text: string; docs: string[] }; // the last "status" event, kept for the expandable steps line
+  suggestions?: string[];
   createdAt: string;
 }
 
@@ -74,11 +77,19 @@ export type ChatEvent =
   | { type: "done" }
   | { type: "error"; message: string };
 
+export const MAX_QUESTION = 2000; // characters, docs/03-chat.md
+
+export interface SendOptions {
+  scope?: Chat["scope"]; // the scope can change between questions in one chat
+  replaceLast?: boolean; // retry or edit: replace the last question and answer instead of appending
+}
+
 export interface Plan {
   id: "free" | "standard" | "campus";
   name: string;
   docLimit: number;
-  priceLabel: string;
+  questionLimit: number; // chat questions per user per day
+  price: number; // KZT per month, 0 for free; the UI formats it and marks it as an example
 }
 
 export interface User {
@@ -98,8 +109,9 @@ export interface Api {
   createChat(scope: Chat["scope"], seed?: ChatMessage[]): Promise<Chat>;
   renameChat(id: string, title: string): Promise<void>;
   deleteChat(id: string): Promise<void>;
-  sendMessage(chatId: string, text: string, signal: AbortSignal): AsyncIterable<ChatEvent>;
-  setFeedback(chatId: string, messageId: string, value: "up" | "down"): Promise<void>;
+  // Throws when the request fails (network); expected failures like the daily limit come as an "error" event.
+  sendMessage(chatId: string, text: string, signal: AbortSignal, options?: SendOptions): AsyncIterable<ChatEvent>;
+  setFeedback(chatId: string, messageId: string, value: "up" | "down", comment?: string): Promise<void>;
 
   listDocs(): Promise<Doc[]>;
   uploadDoc(file: File): Promise<Doc>; // phase 1: rejects with "upload disabled in demo"

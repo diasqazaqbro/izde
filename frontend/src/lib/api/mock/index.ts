@@ -1,40 +1,10 @@
-import type { Api, Clause, SearchHit, SearchMode } from "../types";
-import { CLAUSES, DOCS, type MockClause } from "./data";
+import type { Api } from "../types";
+import { chatApi } from "./chat";
+import { CLAUSES, DOCS } from "./data";
+import { docById, match, toClause } from "./search";
 
-// Step 1 covers auth, search and documents. Chat and billing methods come with steps 2 and 3.
-type MockApi = Pick<Api, "login" | "logout" | "search" | "getDoc" | "listDocs">;
-
-function words(q: string) {
-  return q
-    .toLowerCase()
-    .split(/[^a-zа-яёәғқңөұүһі0-9%]+/i)
-    .filter((w) => w.length >= 3);
-}
-
-function toClause({ id, docId, number, section, text }: MockClause): Clause {
-  return { id, docId, number, section, text };
-}
-
-function docById(id: string) {
-  const doc = DOCS.find((d) => d.id === id);
-  if (!doc) throw new Error(`Unknown document: ${id}`);
-  return doc;
-}
-
-// ponytail: matching ported as is from prototype.html (substring words + hand-made tags).
-// Phase 2 replaces it with the real keyword and embedding search on the backend.
-function match(q: string, mode: SearchMode) {
-  const ql = q.toLowerCase();
-  const ws = words(q);
-  return CLAUSES.flatMap((c) => {
-    const doc = docById(c.docId);
-    const hay = `${c.text} ${c.section} ${doc.title}`.toLowerCase();
-    const highlights = ws.filter((w) => hay.includes(w));
-    let score = highlights.length * 2;
-    if (mode === "meaning") score += c.tags.filter((t) => ql.includes(t)).length * 3;
-    return score > 0 ? [{ source: c, hit: { clause: toClause(c), doc, score, highlights } satisfies SearchHit }] : [];
-  }).sort((a, b) => b.hit.score - a.hit.score);
-}
+// Billing and admin methods come with step 3.
+type MockApi = Pick<Api, "login" | "logout" | "search" | "getDoc" | "listDocs"> & typeof chatApi;
 
 export const mockApi: MockApi = {
   async login(email, _password, role) {
@@ -62,4 +32,6 @@ export const mockApi: MockApi = {
   async listDocs() {
     return DOCS;
   },
+
+  ...chatApi,
 };
