@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Segmented } from "@/components/ui/segmented";
 import { login } from "@/lib/auth/actions";
-import { useT } from "@/lib/i18n/client";
+import { useLang, useT } from "@/lib/i18n/client";
+import { LangSelect } from "@/components/lang-select";
 
 const DEMO_EMAIL = { student: "student@iitu.edu.kz", admin: "admin@iitu.edu.kz" };
 type LoginRole = keyof typeof DEMO_EMAIL;
 
 export function LoginForm({ next }: { next: string }) {
   const t = useT();
+  const lang = useLang();
   const [state, action, pending] = useActionState(login, null);
   const [role, setRole] = useState<LoginRole>("student");
   const [email, setEmail] = useState(DEMO_EMAIL.student);
@@ -26,9 +28,12 @@ export function LoginForm({ next }: { next: string }) {
       action={action}
       className="flex w-full max-w-[400px] flex-col gap-[18px] rounded-[22px] border border-line bg-surface px-7 py-8"
     >
-      <div>
-        <h1 className="text-[40px]">Izde</h1>
-        <p className="text-muted">{t("login.lead")}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-[40px]">{t("app.name")}</h1>
+          <p className="text-muted">{t("login.lead")}</p>
+        </div>
+        <LangSelect lang={lang} />
       </div>
       <Field
         label={t("login.email")}

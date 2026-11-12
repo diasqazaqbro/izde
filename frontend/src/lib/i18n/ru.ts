@@ -1,4 +1,5 @@
 export const ru = {
+  "app.name": "Izde",
   "meta.description": "Поиск по документам университета",
 
   "header.home": "Izde, на главную",
@@ -50,6 +51,22 @@ export const ru = {
   "results.empty.keyword":
     "В режиме «По словам» Izde ищет точные слова из запроса, а эти документы написаны на английском. Переключитесь на «По смыслу».",
   "results.empty.meaning": "Попробуйте спросить иначе или выберите пример.",
+  "results.empty.filters": "С этими фильтрами ничего не нашлось. Уберите один из них.",
+  "filters.title": "Фильтры",
+  "filters.count": "Фильтры: {n}",
+  "filters.type": "Тип документа",
+  "filters.year": "Год",
+  "filters.dept": "Подразделение",
+  "filters.any": "Все",
+  "filters.none.year": "Не указан",
+  "filters.none.dept": "Не указано",
+  "filters.reset": "Сбросить",
+  "filters.apply": "Показать результаты",
+  "type.policy": "Политика",
+  "type.regulation": "Положение",
+  "type.rules": "Правила",
+  "type.guide": "Путеводитель",
+  "type.code": "Кодекс",
 
   "doc.back": "Назад",
   "doc.lang": "язык: {lang}",
@@ -66,7 +83,6 @@ export const ru = {
   "chat.title.new": "Новый чат",
   "chat.history": "История чатов",
   "chat.history.open": "Открыть историю",
-  "chat.history.close": "Закрыть историю",
   "chat.history.hide": "Скрыть историю",
   "chat.history.show": "Показать историю",
   "chat.new": "Новый чат",
@@ -76,7 +92,6 @@ export const ru = {
   "chat.group.earlier": "Раньше",
   "chat.history.empty": "Чатов пока нет. Задайте первый вопрос.",
   "chat.history.notFound": "Чатов с таким названием нет.",
-  "chat.menu": "Действия с чатом",
   "chat.rename": "Переименовать",
   "chat.rename.label": "Название чата",
   "chat.rename.save": "Сохранить",
@@ -96,7 +111,6 @@ export const ru = {
   "chat.scope.all": "Все документы",
   "chat.editing": "Редактирование последнего вопроса",
   "chat.editing.cancel": "Отменить редактирование",
-  "chat.you": "Вы",
   "chat.izde": "Izde",
 
   "chat.status.searching": "Ищу в документах…",
@@ -128,6 +142,7 @@ export const ru = {
   "chat.noDocs.admin": "Загрузить документы",
 
   "common.loading": "Загрузка…",
+  "common.close": "Закрыть",
   "common.demo": "Демо-данные",
   "status.ready": "Готов",
   "status.queued": "В очереди",
@@ -217,6 +232,9 @@ export const ru = {
   "notFound.title": "Страница не найдена",
   "notFound.text": "Ссылка устарела или в ней ошибка.",
   "notFound.action": "На главную",
+  "error.title": "Что-то пошло не так",
+  "error.text": "Попробуйте ещё раз. Если ошибка повторится, обновите страницу.",
+  "error.retry": "Попробовать ещё раз",
 };
 
 export type Dict = typeof ru;

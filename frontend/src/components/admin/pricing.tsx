@@ -111,6 +111,7 @@ export function Pricing() {
 
   return (
     <div className="flex flex-col gap-6">
+      <p className="max-w-[70ch] text-muted">{t("pricing.lead")}</p>
       <p className="text-sm text-muted">{t("pricing.usage", { n: usage.docCount })}</p>
       <div className="grid gap-4 md:grid-cols-3">
         {plans.map((p) => (
