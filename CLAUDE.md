@@ -47,13 +47,14 @@ Izde — поисковик по документам университета: 
 Менеджер пакетов — npm, Node 20.9+. Все команды из папки `frontend/`:
 
 - `npm install` — установка
-- `npm run dev` — запуск для разработки, http://localhost:3000
+- `npm run dev` — запуск для разработки, http://localhost:3000. Вход: любые почта и пароль, для админки на форме выбрать «Администратор»
 - `npm run typecheck` — проверка типов (сначала генерирует типы маршрутов)
 - `npm run lint` — линтер
-- `npm test` — тесты (vitest)
+- `npm test` — тесты мок-слоя (vitest)
 - `npm run build` и `npm start` — сборка и запуск собранной версии
+- всё сразу перед коммитом: `npm run typecheck && npm run lint && npm test && npm run build`
 
-Документация установленной версии Next.js лежит в `frontend/node_modules/next/dist/docs/`.
+Документация установленной версии Next.js лежит в `frontend/node_modules/next/dist/docs/`. Решения фазы 1 — в `docs/DECISIONS.md`, ручная проверка — в `docs/TESTING.md`.
 
 ## Общение с пользователем
 

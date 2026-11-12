@@ -1,0 +1,14 @@
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
+
+# dependencies and builds of every app in the repo
+node_modules/
+.next/
+dist/
+coverage/
+
+# secrets: keep them out of the repo
+.env*
+!.env.example
