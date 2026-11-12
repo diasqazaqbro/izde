@@ -4,7 +4,7 @@ import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
-import type { SearchMode } from "@/lib/api";
+import type { Filters, SearchMode } from "@/lib/api";
 import { useT } from "@/lib/i18n/client";
 import { Segmented } from "@/components/ui/segmented";
 import { ExampleChips } from "./example-chips";
@@ -14,16 +14,20 @@ export function SearchBox({
   mode: initialMode = "meaning",
   hero = false,
   examples,
+  filters = {},
 }: {
   query?: string;
   mode?: SearchMode;
   hero?: boolean;
   examples?: string[];
+  filters?: Filters;
 }) {
   const t = useT();
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState(initialMode);
+  // a new query or mode keeps the filters
+  const activeFilters = Object.fromEntries(Object.entries(filters).filter(([, v]) => v)) as Record<string, string>;
 
   // On the home page the empty field types out example questions letter by letter.
   useEffect(() => {
@@ -59,7 +63,7 @@ export function SearchBox({
   function changeMode(next: SearchMode) {
     setMode(next);
     const q = input.current?.value.trim();
-    if (!hero && q) router.push(`/search?${new URLSearchParams({ q, mode: next })}`);
+    if (!hero && q) router.push(`/search?${new URLSearchParams({ ...activeFilters, q, mode: next })}`);
   }
 
   return (
@@ -81,6 +85,9 @@ export function SearchBox({
           className={`min-w-0 flex-1 bg-transparent p-2.5 focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none ${hero ? "min-h-14 text-[19px]" : "min-h-11 text-[17px]"}`}
         />
         <input type="hidden" name="mode" value={mode} />
+        {Object.entries(activeFilters).map(([k, v]) => (
+          <input key={k} type="hidden" name={k} value={v} />
+        ))}
         <button
           type="submit"
           aria-label={t("search.submit")}

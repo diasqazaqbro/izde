@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { ContinueInChat } from "@/components/search/continue-in-chat";
 import { ExampleChips } from "@/components/search/example-chips";
+import { SearchFilters } from "@/components/search/filters";
 import { SearchBox } from "@/components/search/search-box";
 import { EmptyState } from "@/components/ui/empty-state";
-import { api, type SearchHit, type SearchMode } from "@/lib/api";
+import { api, type DocType, type Filters, type SearchHit, type SearchMode } from "@/lib/api";
 import { getT } from "@/lib/i18n/server";
 
 export async function generateMetadata({ searchParams }: PageProps<"/search">): Promise<Metadata> {
@@ -34,23 +35,34 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   const q = typeof params.q === "string" ? params.q.trim() : "";
   if (!q) redirect("/");
   const mode: SearchMode = params.mode === "keyword" ? "keyword" : "meaning";
+  const pick = (v: unknown) => (typeof v === "string" && v ? v : undefined);
+  const filters: Filters = { type: pick(params.type) as DocType | undefined, year: pick(params.year), dept: pick(params.dept) };
 
   const t = await getT();
-  const { hits, answer } = await api.search(q, mode);
+  const [{ hits, answer }, docs] = await Promise.all([api.search(q, mode, filters), api.listDocs()]);
+  // Options come from searchable documents; empty year and department show up as "not specified".
+  const ready = docs.filter((d) => d.status === "ready");
+  const options = {
+    types: [...new Set(ready.map((d) => d.type))],
+    years: [...new Set(ready.map((d) => (d.year === null ? "none" : String(d.year))))],
+    depts: [...new Set(ready.map((d) => d.dept ?? "none"))],
+  };
+  const filtered = Object.values(filters).some(Boolean);
   const source = answer && hits.find((h) => h.clause.id === answer.citations[0]?.clauseId);
   const examples = [t("example.1"), t("example.2"), t("example.3"), t("example.4")];
 
   return (
     <div className="col flex flex-col gap-5">
       <h1 className="sr-only">{t("results.title")}</h1>
-      <SearchBox key={`${q}|${mode}`} query={q} mode={mode} />
+      <SearchBox key={`${q}|${mode}`} query={q} mode={mode} filters={filters} />
+      <SearchFilters key={JSON.stringify(filters)} value={filters} options={options} />
 
       {hits.length === 0 ? (
         <EmptyState
           title={t("results.empty.title")}
-          text={t(mode === "keyword" ? "results.empty.keyword" : "results.empty.meaning")}
+          text={t(filtered ? "results.empty.filters" : mode === "keyword" ? "results.empty.keyword" : "results.empty.meaning")}
         >
-          <ExampleChips examples={examples} mode={mode} />
+          {!filtered && <ExampleChips examples={examples} mode={mode} />}
         </EmptyState>
       ) : (
         <>
